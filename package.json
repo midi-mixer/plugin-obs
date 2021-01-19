@@ -24,6 +24,7 @@
     "parcel-bundler": "^1.12.4"
   },
   "dependencies": {
-    "midi-mixer-plugin": "^0.1.3"
+    "midi-mixer-plugin": "^0.1.3",
+    "obs-websocket-js": "^4.0.2"
   }
 }
