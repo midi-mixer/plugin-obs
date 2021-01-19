@@ -1,21 +1,62 @@
 import { Assignment } from "midi-mixer-plugin";
+import OBSWebSocket from "obs-websocket-js";
 
-const example = new Assignment("foo", {
-  name: "Example Plugin Entry",
-});
+const obs = new OBSWebSocket();
+const sources: Record<string, Assignment> = {};
 
-example.on("volumeChanged", (level: number) => {
-  example.volume = level;
-});
+(async () => {
+  await obs.connect({ address: "localhost:4444", password: "" });
 
-example.on("mutePressed", () => {
-  example.muted = !example.muted;
-});
+  obs.on("SourceVolumeChanged", (data) => {
+    const source = sources[data.sourceName];
+    if (!source) return;
 
-example.on("assignPressed", () => {
-  example.assigned = !example.assigned;
-});
+    source.volume = data.volume;
+  });
 
-example.on("runPressed", () => {
-  example.running = !example.running;
+  obs.on("SourceMuteStateChanged", (data) => {
+    const source = sources[data.sourceName];
+    if (!source) return;
+
+    source.muted = data.muted;
+  });
+
+  const data = await obs.send("GetSourcesList");
+
+  data.sources?.forEach(async (source: any) => {
+    const [volume, muted] = await Promise.all([
+      obs
+        .send("GetVolume", {
+          source: source.name,
+        })
+        .then((res) => res.volume),
+      obs
+        .send("GetMute", {
+          source: source.name,
+        })
+        .then((res) => res.muted),
+    ]);
+
+    sources[source.name] = new Assignment(source.name, {
+      name: source.name,
+      muted,
+      volume,
+    });
+
+    sources[source.name].on("volumeChanged", (level: number) => {
+      obs.send("SetVolume", {
+        source: source.name,
+        volume: level,
+      });
+    });
+
+    sources[source.name].on("mutePressed", () => {
+      obs.send("SetMute", {
+        source: source.name,
+        mute: !sources[source.name].muted,
+      });
+    });
+  });
+})().catch((err) => {
+  console.warn("OBS error:", err);
 });
