@@ -1,0 +1,29 @@
+{
+  "name": "midi-mixer-plugin-template",
+  "prettyName": "Template Plugin",
+  "version": "0.1.0",
+  "description": "A template plugin for MIDI Mixer.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel src/index.ts --hmr-hostname localhost",
+    "build": "parcel build src/index.ts"
+  },
+  "settings": {
+    "address": "localhost:4444",
+    "password": "",
+    "multi": {
+      "brown": "Brown",
+      "blue": "Blue",
+      "purple": "Purple"
+    }
+  },
+  "author": "Jack Williams",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "dependencies": {
+    "midi-mixer-plugin": "^0.1.3"
+  }
+}
