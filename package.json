@@ -1,6 +1,6 @@
 {
-  "name": "midi-mixer-plugin-template",
-  "prettyName": "Template Plugin",
+  "name": "plugin-obs",
+  "prettyName": "OBS",
   "version": "0.1.0",
   "description": "A template plugin for MIDI Mixer.",
   "main": "dist/index.js",
