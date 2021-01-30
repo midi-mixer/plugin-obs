@@ -10,12 +10,15 @@
     "build": "parcel build src/index.ts"
   },
   "settings": {
-    "address": "localhost:4444",
-    "password": "",
-    "multi": {
-      "brown": "Brown",
-      "blue": "Blue",
-      "purple": "Purple"
+    "address": {
+      "label": "OBS WebSocket Address",
+      "required": false,
+      "type": "text"
+    },
+    "password": {
+      "label": "OBS WebSocket Password",
+      "required": false,
+      "type": "text"
     }
   },
   "author": "Jack Williams",
