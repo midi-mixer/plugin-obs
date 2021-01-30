@@ -1,11 +1,21 @@
 import { Assignment } from "midi-mixer-plugin";
 import OBSWebSocket from "obs-websocket-js";
 
+interface Settings {
+  address?: string;
+  password?: string;
+}
+
 const obs = new OBSWebSocket();
 const sources: Record<string, Assignment> = {};
 
 (async () => {
-  await obs.connect({ address: "localhost:4444", password: "" });
+  const settings = (await $MM.getSettings()) as Settings;
+
+  await obs.connect({
+    address: settings.address ?? "localhost:4444",
+    password: settings.password ?? "",
+  });
 
   obs.on("SourceVolumeChanged", (data) => {
     const source = sources[data.sourceName];
