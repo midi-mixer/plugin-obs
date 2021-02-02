@@ -1,6 +1,6 @@
 # OBS Plugin
 
-Currently this is a proof-of-concept plugin to show some practical usage of [midi-mixer-plugin](https://github.com/midi-mixer/midi-mixer-plugin). It provides an exceedingly basic OBS integration by adding a list of all sources to your MIDI Mixer assignments list.
+Currently this is a proof-of-concept plugin to show some practical usage of [midi-mixer-plugin](https://github.com/midi-mixer/midi-mixer-plugin). It provides an exceedingly basic OBS integration by adding a list of all sources to your MIDI Mixer assignments list and button types for switching between scenes.
 
 ## Usage
 
