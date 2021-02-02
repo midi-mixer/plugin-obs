@@ -1,4 +1,4 @@
-import { Assignment } from "midi-mixer-plugin";
+import { Assignment, ButtonType } from "midi-mixer-plugin";
 import OBSWebSocket from "obs-websocket-js";
 
 interface Settings {
@@ -8,15 +8,20 @@ interface Settings {
 
 const obs = new OBSWebSocket();
 const sources: Record<string, Assignment> = {};
+const scenes: Record<string, ButtonType> = {};
+const settingsP: Promise<Settings> = $MM.getSettings();
+let currentScene = "";
 
-(async () => {
-  const settings = (await $MM.getSettings()) as Settings;
+const connect = async () => {
+  const settings = await settingsP;
 
-  await obs.connect({
+  return obs.connect({
     address: settings.address ?? "localhost:4444",
     password: settings.password ?? "",
   });
+};
 
+const registerListeners = () => {
   obs.on("SourceVolumeChanged", (data) => {
     const source = sources[data.sourceName];
     if (!source) return;
@@ -31,6 +36,16 @@ const sources: Record<string, Assignment> = {};
     source.muted = data.muted;
   });
 
+  obs.on("SwitchScenes", (data) => {
+    currentScene = data["scene-name"];
+
+    Object.values(scenes).forEach((button) => {
+      button.active = data["scene-name"] === button.id;
+    });
+  });
+};
+
+const mapSources = async () => {
   const data = await obs.send("GetSourcesList");
 
   data.sources?.forEach(async (source: any) => {
@@ -47,26 +62,58 @@ const sources: Record<string, Assignment> = {};
         .then((res) => res.muted),
     ]);
 
-    sources[source.name] = new Assignment(source.name, {
+    const assignment = new Assignment(source.name, {
       name: source.name,
       muted,
       volume,
     });
 
-    sources[source.name].on("volumeChanged", (level: number) => {
+    assignment.on("volumeChanged", (level: number) => {
       obs.send("SetVolume", {
         source: source.name,
         volume: level,
       });
     });
 
-    sources[source.name].on("mutePressed", () => {
+    assignment.on("mutePressed", () => {
       obs.send("SetMute", {
         source: source.name,
-        mute: !sources[source.name].muted,
+        mute: !assignment.muted,
       });
     });
+
+    sources[source.name] = assignment;
   });
+};
+
+const mapScenes = async () => {
+  const data = await obs.send("GetSceneList");
+
+  currentScene = data["current-scene"];
+
+  data.scenes.forEach((scene) => {
+    const button = new ButtonType(scene.name, {
+      name: `OBS: Switch to "${scene.name}" scene`,
+      active: scene.name === currentScene,
+    });
+
+    button.on("pressed", () => {
+      obs.send("SetCurrentScene", {
+        "scene-name": scene.name,
+      });
+
+      button.active = true;
+    });
+
+    scenes[scene.name] = button;
+  });
+};
+
+(async () => {
+  await connect();
+  registerListeners();
+
+  await Promise.all([mapSources(), mapScenes()]);
 })().catch((err) => {
   console.warn("OBS error:", err);
 });
