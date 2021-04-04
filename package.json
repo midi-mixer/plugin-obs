@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "An OBS integration for MIDI Mixer.",
   "main": "dist/index.js",
+  "icon": "icon.svg",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel src/index.ts --hmr-hostname localhost --public-url . -t browser",
