@@ -7,8 +7,8 @@ interface Settings {
 }
 
 const obs = new OBSWebSocket();
-const sources: Record<string, Assignment> = {};
-const scenes: Record<string, ButtonType> = {};
+let sources: Record<string, Assignment> = {};
+let scenes: Record<string, ButtonType> = {};
 const settingsP: Promise<Settings> = $MM.getSettings();
 let currentScene = "";
 
@@ -109,11 +109,25 @@ const mapScenes = async () => {
   });
 };
 
-(async () => {
-  await connect();
-  registerListeners();
+const init = async () => {
+  obs.disconnect();
+  sources = {};
+  scenes = {};
 
-  await Promise.all([mapSources(), mapScenes()]);
-})().catch((err) => {
-  console.warn("OBS error:", err);
-});
+  try {
+    $MM.setSettingsStatus("status", "Connecting...");
+
+    await connect();
+    registerListeners();
+    await Promise.all([mapSources(), mapScenes()]);
+
+    $MM.setSettingsStatus("status", "Connected");
+  } catch (err) {
+    console.warn("OBS error:", err);
+    $MM.setSettingsStatus("status", err.description || err.message || err);
+  }
+};
+
+$MM.onSettingsButtonPress("reconnect", init);
+
+init();
