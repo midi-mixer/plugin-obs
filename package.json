@@ -21,6 +21,15 @@
       "label": "OBS WebSocket Password",
       "required": false,
       "type": "password"
+    },
+    "status": {
+      "label": "Status",
+      "type": "status",
+      "fallback": "Disconnected"
+    },
+    "reconnect": {
+      "label": "Reconnect",
+      "type": "button"
     }
   },
   "author": "Jack Williams",
