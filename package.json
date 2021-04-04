@@ -20,7 +20,7 @@
     "password": {
       "label": "OBS WebSocket Password",
       "required": false,
-      "type": "text"
+      "type": "password"
     }
   },
   "author": "Jack Williams",
