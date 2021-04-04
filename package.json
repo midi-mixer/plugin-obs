@@ -14,7 +14,8 @@
     "address": {
       "label": "OBS WebSocket Address",
       "required": false,
-      "type": "text"
+      "type": "text",
+      "fallback": "localhost:4444"
     },
     "password": {
       "label": "OBS WebSocket Password",
