@@ -3,12 +3,12 @@
   "prettyName": "OBS",
   "version": "0.1.0",
   "description": "An OBS integration for MIDI Mixer.",
-  "main": "dist/index.js",
+  "main": "dist/index.html",
   "icon": "icon.svg",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "parcel src/index.ts --hmr-hostname localhost --public-url . -t browser",
-    "build": "parcel build src/index.ts --public-url . -t browser"
+    "dev": "parcel src/index.html --hmr-hostname localhost --public-url ./dist/ -t browser",
+    "build": "parcel build src/index.html --public-url ./dist/ -t browser"
   },
   "settings": {
     "address": {
@@ -46,7 +46,7 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "midi-mixer-plugin": "^0.1.5",
+    "midi-mixer-plugin": "^0.1.7",
     "obs-websocket-js": "^4.0.2"
   },
   "volta": {
