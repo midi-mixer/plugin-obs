@@ -1,0 +1,34 @@
+{
+  "$schema": "./node_modules/midi-mixer-plugin/plugin.schema.json",
+  "id": "com.midi-mixer.obs",
+  "name": "OBS",
+  "version": "1.0.0",
+  "author": "Jack Williams",
+  "main": "dist/index.html",
+  "dev": "http://localhost:3000",
+  "remote": "https://plugins.obs.midi-mixer.com",
+  "icon": "dist/icon.svg",
+  "remoteIcon": "icon.svg",
+  "settings": {
+    "address": {
+      "label": "OBS WebSocket Address",
+      "required": false,
+      "type": "text",
+      "fallback": "localhost:4444"
+    },
+    "password": {
+      "label": "OBS WebSocket Password",
+      "required": false,
+      "type": "password"
+    },
+    "status": {
+      "label": "Status",
+      "type": "status",
+      "fallback": "Disconnected"
+    },
+    "reconnect": {
+      "label": "Reconnect",
+      "type": "button"
+    }
+  }
+}

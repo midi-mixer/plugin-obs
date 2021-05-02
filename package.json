@@ -1,38 +1,12 @@
 {
   "name": "plugin-obs",
   "prettyName": "OBS",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "An OBS integration for MIDI Mixer.",
-  "main": "dist/index.html",
-  "icon": "icon.svg",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rimraf dist",
-    "prestart": "npm run clean",
-    "start": "parcel src/index.html --hmr-hostname localhost --public-url ./ -t browser",
-    "build": "tsc && npm run clean && parcel build src/index.html --public-url ./ -t browser"
-  },
-  "settings": {
-    "address": {
-      "label": "OBS WebSocket Address",
-      "required": false,
-      "type": "text",
-      "fallback": "localhost:4444"
-    },
-    "password": {
-      "label": "OBS WebSocket Password",
-      "required": false,
-      "type": "password"
-    },
-    "status": {
-      "label": "Status",
-      "type": "status",
-      "fallback": "Disconnected"
-    },
-    "reconnect": {
-      "label": "Reconnect",
-      "type": "button"
-    }
+    "dev": "vite",
+    "build": "tsc && vite build && workbox generateSW workbox-config.js",
+    "serve": "vite preview"
   },
   "author": "Jack Williams",
   "license": "ISC",
@@ -43,13 +17,14 @@
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
-    "parcel-bundler": "^1.12.4",
     "prettier": "^2.2.1",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.1.3"
+    "rollup-plugin-copy": "^3.4.0",
+    "typescript": "^4.2.4",
+    "vite": "^2.2.3",
+    "workbox-cli": "^6.1.5"
   },
   "dependencies": {
-    "midi-mixer-plugin": "^0.1.7",
+    "midi-mixer-plugin": "^0.2.0",
     "obs-websocket-js": "^4.0.2"
   },
   "volta": {
