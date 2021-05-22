@@ -1,10 +1,6 @@
 {
-  "name": "plugin-obs",
-  "prettyName": "OBS",
-  "version": "0.1.0",
+  "name": "com.midi-mixer.obs",
   "description": "An OBS integration for MIDI Mixer.",
-  "main": "dist/index.html",
-  "icon": "icon.svg",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf dist",
@@ -12,29 +8,6 @@
     "start": "parcel src/index.html --hmr-hostname localhost --public-url ./ -t browser",
     "build": "tsc && npm run clean && parcel build src/index.html --public-url ./ -t browser"
   },
-  "settings": {
-    "address": {
-      "label": "OBS WebSocket Address",
-      "required": false,
-      "type": "text",
-      "fallback": "localhost:4444"
-    },
-    "password": {
-      "label": "OBS WebSocket Password",
-      "required": false,
-      "type": "password"
-    },
-    "status": {
-      "label": "Status",
-      "type": "status",
-      "fallback": "Disconnected"
-    },
-    "reconnect": {
-      "label": "Reconnect",
-      "type": "button"
-    }
-  },
-  "author": "Jack Williams",
   "license": "ISC",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.14.2",
@@ -49,7 +22,7 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "midi-mixer-plugin": "^0.1.7",
+    "midi-mixer-plugin": "^0.2.1",
     "obs-websocket-js": "^4.0.2"
   },
   "volta": {
