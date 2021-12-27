@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/midi-mixer-plugin/plugin.schema.json",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "id": "com.midi-mixer.obs",
   "name": "OBS",
   "type": "node",
