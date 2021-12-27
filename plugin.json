@@ -3,8 +3,8 @@
   "version": "0.1.2",
   "id": "com.midi-mixer.obs",
   "name": "OBS",
-  "main": "dist/index.html",
-  "dev": "http://localhost:3000",
+  "type": "node",
+  "main": "lib/index.js",
   "icon": "icon.svg",
   "settings": {
     "address": {
