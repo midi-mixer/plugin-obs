@@ -34,7 +34,8 @@
   },
   "dependencies": {
     "midi-mixer-plugin": "0.4.0",
-    "obs-websocket-js": "^4.0.2"
+    "obs-websocket-js": "^4.0.2",
+    "ws": "8.4.0"
   },
   "volta": {
     "node": "14.15.4",
