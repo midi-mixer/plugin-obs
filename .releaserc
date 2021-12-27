@@ -1,16 +1,55 @@
 {
-  "branches": ["main"],
+  "branches": [
+    "main"
+  ],
   "plugins": [
-    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "releaseRules": [
+          {
+            "type": "breaking",
+            "release": "major"
+          },
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "message": "*",
+            "release": "patch"
+          },
+          {
+            "scope": "no-release",
+            "release": false
+          }
+        ]
+      }
+    ],
     "@semantic-release/release-notes-generator",
-    ["@semantic-release/npm", {
-      "npmPublish": false
-    }],
-    ["@semantic-release/github", {
-      "assets": ["*.midiMixerPlugin"]
-      }],
-    ["@semantic-release/git", {
-      "assets": ["package.json", "package-lock.json", "plugin.json"]
-    }]
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          "*.midiMixerPlugin"
+        ]
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "package.json",
+          "package-lock.json",
+          "plugin.json"
+        ]
+      }
+    ]
   ]
 }
