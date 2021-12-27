@@ -1,0 +1,16 @@
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    name: Build and pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+      - run: npm run build
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
