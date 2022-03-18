@@ -103,5 +103,5 @@ typings/
 .tern-port
 
 # Build output
-lib/*
+lib/
 *.midiMixerPlugin
