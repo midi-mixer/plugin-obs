@@ -3,7 +3,7 @@
   "id": "com.midi-mixer.obs",
   "name": "OBS",
   "type": "node",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "MIDI Mixer",
   "main": "lib/index.js",
   "icon": "icon.svg",
