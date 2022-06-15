@@ -1,9 +1,10 @@
 {
   "$schema": "./node_modules/midi-mixer-plugin/plugin.schema.json",
-  "version": "0.1.4",
   "id": "com.midi-mixer.obs",
   "name": "OBS",
   "type": "node",
+  "version": "0.1.4",
+  "author": "MIDI Mixer",
   "main": "lib/index.js",
   "icon": "icon.svg",
   "settings": {
@@ -27,6 +28,5 @@
       "label": "Reconnect",
       "type": "button"
     }
-  },
-  "author": "MIDI Mixer"
+  }
 }
