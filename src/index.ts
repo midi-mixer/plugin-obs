@@ -174,12 +174,4 @@ const init = async () => {
 
 $MM.onSettingsButtonPress("reconnect", init);
 
-const fakeAssignment = new Assignment("FakeAssignment", {
-  name: "Fake Assignment"
-});
-
-fakeAssignment.on("volumeChanged", (level: number) => {
-  console.log(`Volume changed to ${level}`);
-});
-
 init();
