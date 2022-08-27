@@ -1,5 +1,5 @@
 import { Assignment, ButtonType } from "midi-mixer-plugin";
-import OBSWebSocket, { OBSWebSocketError, OBSEventTypes, OBSResponseTypes } from "obs-websocket-js";
+import OBSWebSocket, { OBSWebSocketError, EventSubscription, OBSEventTypes, OBSResponseTypes } from "obs-websocket-js";
 
 interface Settings {
   address?: string;
@@ -14,7 +14,7 @@ const settingsP: Promise<Settings> = $MM.getSettings();
 const connect = async () => {
   const settings = await settingsP;
 
-  return obs.connect(settings.address ?? "ws://localhost:4455", settings.password ?? "")
+  return obs.connect(settings.address ?? "ws://localhost:4455", settings.password ?? "", { eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters })
 };
 
 
@@ -31,6 +31,15 @@ const registerListeners = () => {
     if (!source) return;
 
     source.muted = data.inputMuted;
+  });
+
+  // TODO: Test this thoroughly
+  obs.on("InputVolumeMeters", (data) => {
+    data.inputs.forEach((input: any) => {
+      // Only update if non-zero audio levels
+      if (input.inputLevelsMul.length == 0 || input.inputLevelsMul[0][0] == 0) return;
+      inputs[input.inputName].meter = input.inputLevelsMul[0][1]
+    });
   });
 
   obs.on("CurrentProgramSceneChanged", (data) => {
@@ -157,6 +166,9 @@ const init = async () => {
   } catch (err: any) {
     console.warn("OBS error:", err);
     $MM.setSettingsStatus("status", err.description || err.message || err);
+
+    // TODO: Better way to retry on failure?
+    setTimeout(init, 60 * 1000)
   }
 };
 
