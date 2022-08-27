@@ -1,5 +1,5 @@
 import { Assignment, ButtonType } from "midi-mixer-plugin";
-import OBSWebSocket from "obs-websocket-js";
+import OBSWebSocket, { OBSWebSocketError, OBSEventTypes, OBSResponseTypes } from "obs-websocket-js";
 
 interface Settings {
   address?: string;
@@ -7,111 +7,143 @@ interface Settings {
 }
 
 const obs = new OBSWebSocket();
-let sources: Record<string, Assignment> = {};
+let inputs: Record<string, Assignment> = {};
 let scenes: Record<string, ButtonType> = {};
 const settingsP: Promise<Settings> = $MM.getSettings();
-let currentScene = "";
 
 const connect = async () => {
   const settings = await settingsP;
 
-  return obs.connect({
-    address: settings.address ?? "localhost:4444",
-    password: settings.password ?? "",
-  });
+  return obs.connect(settings.address ?? "ws://localhost:4455", settings.password ?? "")
 };
 
+
 const registerListeners = () => {
-  obs.on("SourceVolumeChanged", (data) => {
-    const source = sources[data.sourceName];
+  obs.on("InputVolumeChanged", (data) => {
+    const source = inputs[data.inputName];
     if (!source) return;
 
-    source.volume = data.volume;
+    source.volume = data.inputVolumeMul;
   });
 
-  obs.on("SourceMuteStateChanged", (data) => {
-    const source = sources[data.sourceName];
+  obs.on("InputMuteStateChanged", (data) => {
+    const source = inputs[data.inputName];
     if (!source) return;
 
-    source.muted = data.muted;
+    source.muted = data.inputMuted;
   });
 
-  obs.on("SwitchScenes", (data) => {
-    currentScene = data["scene-name"];
-
+  obs.on("CurrentProgramSceneChanged", (data) => {
     Object.values(scenes).forEach((button) => {
-      button.active = data["scene-name"] === button.id;
+      button.active = data.sceneName === button.id;
     });
   });
+
+  obs.on("ExitStarted", () => {
+    disconnect();
+    init();
+  })
 };
 
 const mapSources = async () => {
-  const data = await obs.send("GetSourcesList");
+  const data = await obs.call("GetInputList");
 
-  data.sources?.forEach(async (source: any) => {
-    const [volume, muted] = await Promise.all([
-      obs
-        .send("GetVolume", {
-          source: source.name,
-        })
-        .then((res) => res.volume),
-      obs
-        .send("GetMute", {
-          source: source.name,
-        })
-        .then((res) => res.muted),
-    ]);
+  // TODO: Would prefer this not be "any" but the actual type is "JsonObject" which sucks to use
+  data.inputs?.forEach(async (input: any) => {
+    try {
+      const [volume, muted] = await Promise.all([
+        obs
+          .call("GetInputVolume", {
+            inputName: input.inputName,
+          })
+          .then((res) => res.inputVolumeMul),
+        obs
+          .call("GetInputMute", {
+            inputName: input.inputName,
+          })
+          .then((res) => res.inputMuted),
+      ]);
 
-    const assignment = new Assignment(source.name, {
-      name: source.name,
-      muted,
-      volume,
-    });
-
-    assignment.on("volumeChanged", (level: number) => {
-      obs.send("SetVolume", {
-        source: source.name,
-        volume: level,
+      const assignment = new Assignment(input.inputName, {
+        name: input.inputName,
+        muted,
+        volume,
       });
-    });
 
-    assignment.on("mutePressed", () => {
-      obs.send("SetMute", {
-        source: source.name,
-        mute: !assignment.muted,
+      assignment.on("volumeChanged", (level: number) => {
+        assignment.volume = level;
+        obs.call("SetInputVolume", {
+          inputName: input.inputName,
+          inputVolumeMul: level,
+        });
       });
-    });
 
-    sources[source.name] = assignment;
+      assignment.on("mutePressed", () => {
+        obs.call("SetInputMute", {
+          inputName: input.inputName,
+          inputMuted: !assignment.muted,
+        });
+      });
+
+      inputs[input.inputName] = assignment;
+    }
+    catch (e: any) {
+      if (e instanceof OBSWebSocketError) {
+        if (e.code == 604) {
+          // https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#requeststatusinvalidresourcestate
+          // Usual cause is that input does not support audio
+        }
+        else {
+          console.log(e);
+          console.log(input);
+        }
+      }
+    }
   });
 };
 
 const mapScenes = async () => {
-  const data = await obs.send("GetSceneList");
+  const data = await obs.call("GetSceneList");
 
-  currentScene = data["current-scene"];
+  // TODO: Would prefer this not be "any" but the actual type is "JsonObject" which sucks to use
+  data.scenes.forEach((scene: any) => {
 
-  data.scenes.forEach((scene) => {
-    const button = new ButtonType(scene.name, {
-      name: `OBS: Switch to "${scene.name}" scene`,
-      active: scene.name === currentScene,
+    const button = new ButtonType(scene.sceneName, {
+      name: `OBS: Switch to "${scene.sceneName}" scene`,
+      active: scene.sceneName === data.currentProgramSceneName,
     });
 
     button.on("pressed", () => {
-      obs.send("SetCurrentScene", {
-        "scene-name": scene.name,
+      obs.call("SetCurrentProgramScene", {
+        sceneName: scene.sceneName,
       });
 
       button.active = true;
     });
 
-    scenes[scene.name] = button;
+    scenes[scene.sceneName] = button;
   });
 };
 
-const init = async () => {
+function disconnect() {
+  console.log("Disconnecting");
   obs.disconnect();
-  sources = {};
+  for (let k in inputs) {
+    let s = inputs[k];
+    s.remove();
+  }
+
+  for (let k in scenes) {
+    let s = scenes[k];
+    s.remove();
+  }
+}
+
+
+const init = async () => {
+  console.log("Initializing");
+  obs.disconnect();
+  inputs = {};
   scenes = {};
 
   try {
@@ -122,12 +154,20 @@ const init = async () => {
     await Promise.all([mapSources(), mapScenes()]);
 
     $MM.setSettingsStatus("status", "Connected");
-  } catch (err) {
+  } catch (err: any) {
     console.warn("OBS error:", err);
     $MM.setSettingsStatus("status", err.description || err.message || err);
   }
 };
 
 $MM.onSettingsButtonPress("reconnect", init);
+
+const fakeAssignment = new Assignment("FakeAssignment", {
+  name: "Fake Assignment"
+});
+
+fakeAssignment.on("volumeChanged", (level: number) => {
+  console.log(`Volume changed to ${level}`);
+});
 
 init();

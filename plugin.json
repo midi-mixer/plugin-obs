@@ -3,7 +3,7 @@
   "id": "com.midi-mixer.obs",
   "name": "OBS",
   "type": "node",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "author": "MIDI Mixer",
   "main": "lib/index.js",
   "icon": "icon.svg",
@@ -12,7 +12,7 @@
       "label": "OBS WebSocket Address",
       "required": false,
       "type": "text",
-      "fallback": "localhost:4444"
+      "fallback": "ws://localhost:4455"
     },
     "password": {
       "label": "OBS WebSocket Password",
