@@ -14,7 +14,12 @@ const settingsP: Promise<Settings> = $MM.getSettings();
 const connect = async () => {
   const settings = await settingsP;
 
-  return obs.connect(settings.address ?? "ws://localhost:4455", settings.password ?? "", { eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters })
+  let address = (settings.address ?? "ws://localhost:4455")
+  if (!address.startsWith("ws://") || !address.startsWith("wss://")) {
+    address = `ws://${address}`;
+  }
+
+  return obs.connect(address, settings.password ?? "", { eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters })
 };
 
 
