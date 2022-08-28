@@ -15,7 +15,7 @@ const connect = async () => {
   const settings = await settingsP;
 
   let address = (settings.address ?? "ws://localhost:4455")
-  if (!address.startsWith("ws://") || !address.startsWith("wss://")) {
+  if (!address.startsWith("ws://") && !address.startsWith("wss://")) {
     address = `ws://${address}`;
   }
 
