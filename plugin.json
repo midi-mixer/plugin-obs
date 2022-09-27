@@ -27,6 +27,11 @@
     "reconnect": {
       "label": "Reconnect",
       "type": "button"
+    },
+    "meterMultiplier": {
+      "label": "Meter Scaling Multiplier",
+      "type": "text",
+      "fallback": "1"
     }
   }
 }

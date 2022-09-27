@@ -4,15 +4,23 @@ import OBSWebSocket, { OBSWebSocketError, EventSubscription, OBSEventTypes, OBSR
 interface Settings {
   address?: string;
   password?: string;
+  meterMultiplier?: string
+  meterScaling?: number
 }
 
 const obs = new OBSWebSocket();
 let inputs: Record<string, Assignment> = {};
 let scenes: Record<string, ButtonType> = {};
 const settingsP: Promise<Settings> = $MM.getSettings();
+let settings: Settings;
 
 const connect = async () => {
-  const settings = await settingsP;
+  settings = await settingsP;
+
+  // We need to use a text string to allow decimals. If given value is not a valid number set it to 1
+  if (!(settings.meterScaling = Number(settings.meterMultiplier))) {
+    settings.meterScaling = 1;
+  }
 
   let address = (settings.address ?? "ws://localhost:4455")
   if (!address.startsWith("ws://") && !address.startsWith("wss://")) {
@@ -42,8 +50,10 @@ const registerListeners = () => {
   obs.on("InputVolumeMeters", (data) => {
     data.inputs.forEach((input: any) => {
       // Only update if non-zero audio levels
-      if (input.inputLevelsMul.length == 0 || input.inputLevelsMul[0][0] == 0) return;
-      inputs[input.inputName].meter = input.inputLevelsMul[0][1]
+      if (input.inputLevelsMul.length == 0 || input.inputLevelsMul[0][0] == 0 || !settings.meterScaling || settings.meterScaling == 0) return;
+      // I think [0] is left channel and [1] is right channel.
+      // console.log(input.inputLevelsMul[0][1]);
+      inputs[input.inputName].meter = input.inputLevelsMul[0][1] * settings.meterScaling;
     });
   });
 
