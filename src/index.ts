@@ -181,9 +181,6 @@ const init = async () => {
   } catch (err: any) {
     console.warn("OBS error:", err);
     $MM.setSettingsStatus("status", err.description || err.message || err);
-
-    // TODO: Better way to retry on failure?
-    setTimeout(init, 60 * 1000)
   }
 };
 
