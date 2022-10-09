@@ -47,7 +47,7 @@
     "node": "14.15.4",
     "npm": "8.19.2"
   },
-  "version": "0.1.6",
+  "version": "1.0.0",
   "bundleDependencies": [
     "midi-mixer-plugin",
     "obs-websocket-js",
