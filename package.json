@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "midi-mixer-plugin": "^1.0.2",
-    "obs-websocket-js": "^4.0.2",
+    "obs-websocket-js": "^5.0.2",
     "ws": "8.4.0"
   },
   "bundledDependencies": [
@@ -45,7 +45,12 @@
   ],
   "volta": {
     "node": "14.15.4",
-    "npm": "6.14.11"
+    "npm": "8.19.2"
   },
-  "version": "0.1.6"
+  "version": "0.1.6",
+  "bundleDependencies": [
+    "midi-mixer-plugin",
+    "obs-websocket-js",
+    "ws"
+  ]
 }
