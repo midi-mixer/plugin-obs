@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "midi-mixer-plugin": "^1.0.2",
-    "obs-websocket-js": "^4.0.2",
+    "obs-websocket-js": "^5.0.1",
     "ws": "8.4.0"
   },
   "bundledDependencies": [
