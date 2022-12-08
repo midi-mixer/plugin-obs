@@ -13,8 +13,6 @@ let inputs: Record<string, Assignment> = {};
 let scenes: Record<string, ButtonType> = {};
 const settingsP: Promise<Settings> = $MM.getSettings();
 let settings: Settings;
-let wsConnected = false;
-let wsConnecting = false;
 
 const connect = async () => {
   settings = await settingsP;
@@ -67,15 +65,7 @@ const registerListeners = () => {
 
   obs.on("ExitStarted", () => {
     disconnect();
-
-    (async () => {
-      while (!wsConnected) {
-        await new Promise(f => setTimeout(f, 1000));
-        if (!wsConnecting) {
-          init();
-        }
-      }
-    })();
+    init();
   })
 };
 
@@ -159,10 +149,8 @@ const mapScenes = async () => {
   });
 };
 
-
 function disconnect() {
   console.log("Disconnecting");
-  wsConnected = false;
   obs.disconnect();
   for (let k in inputs) {
     let s = inputs[k];
@@ -177,26 +165,34 @@ function disconnect() {
 
 const init = async () => {
   console.log("Initializing");
-  obs.disconnect();
-  inputs = {};
-  scenes = {};
-  
-  wsConnecting = true;
-  try {
-    $MM.setSettingsStatus("status", "Connecting...");
 
-    await connect();
-    registerListeners();
-    await Promise.all([mapSources(), mapScenes()]);
+  let wsConnected = false;
+  while (!wsConnected) {
+    obs.disconnect();
+    inputs = {};
+    scenes = {};
+    
+    try {
+      $MM.setSettingsStatus("status", "Connecting...");
+      
+      await connect();
+      registerListeners();
+      await Promise.all([mapSources(), mapScenes()]);
+      
+      $MM.setSettingsStatus("status", "Connected");
+      wsConnected = true;
+    } catch (err: any) {
+      console.warn("OBS error:", err);
+      $MM.setSettingsStatus("status", err.description || err.message || err);
 
-    $MM.setSettingsStatus("status", "Connected");
-    wsConnected = true;
-  } catch (err: any) {
-    console.warn("OBS error:", err);
-    $MM.setSettingsStatus("status", err.description || err.message || err);
+      await delay(1000);
+    }
   }
-  wsConnecting = false;
 };
+
+const delay = (delayMs: number) => {
+  return new Promise(resolve => setTimeout(resolve, delayMs));
+}
 
 $MM.onSettingsButtonPress("reconnect", init);
 
