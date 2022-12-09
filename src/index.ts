@@ -30,6 +30,13 @@ const connect = async () => {
   return obs.connect(address, settings.password ?? "", { eventSubscriptions: EventSubscription.All | EventSubscription.InputVolumeMeters })
 };
 
+const streamButton = new ButtonType("streamButton", {
+  name: "OBS: Stream Button",
+});
+
+const recordButton = new ButtonType("recordButton", {
+  name: "OBS: Record Button",
+});
 
 const registerListeners = () => {
   obs.on("InputVolumeChanged", (data) => {
@@ -61,6 +68,14 @@ const registerListeners = () => {
     Object.values(scenes).forEach((button) => {
       button.active = data.sceneName === button.id;
     });
+  });
+
+  obs.on("StreamStateChanged", (data) => {
+    streamButton.active = data.outputActive;
+  });
+  
+  obs.on("RecordStateChanged", (data) => {
+    recordButton.active = data.outputActive;
   });
 
   obs.on("ExitStarted", () => {
@@ -149,6 +164,33 @@ const mapScenes = async () => {
   });
 };
 
+const mapButtons = async () => {
+  streamButton.on("pressed", async () => {
+    const status = await obs.call("GetStreamStatus");
+  
+    if (status.outputActive) {
+      obs.call("StopStream");
+    }
+    else {
+      obs.call("StartStream");
+    }
+  });
+  
+  recordButton.on("pressed", async () => {
+    const status = await obs.call("GetRecordStatus");
+    
+    if (status.ouputPaused) {
+      obs.call("ResumeRecord");
+    }
+    else if (status.outputActive) {
+      obs.call("StopRecord");
+    }
+    else {
+      obs.call("StartRecord");
+    }
+  });
+};
+
 function disconnect() {
   console.log("Disconnecting");
   obs.disconnect();
@@ -175,14 +217,19 @@ const init = async () => {
 
     await connect();
     registerListeners();
-    await Promise.all([mapSources(), mapScenes()]);
+    await Promise.all([mapSources(), mapScenes(), mapButtons()]);
 
     $MM.setSettingsStatus("status", "Connected");
+    wsConnected = true;
   } catch (err: any) {
     console.warn("OBS error:", err);
     $MM.setSettingsStatus("status", err.description || err.message || err);
   }
 };
+
+const delay = (delayMs: number) => {
+  return new Promise(resolve => setTimeout(resolve, delayMs));
+}
 
 $MM.onSettingsButtonPress("reconnect", init);
 
